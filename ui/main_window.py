@@ -105,6 +105,7 @@ class MainWindow(QMainWindow):
         self._audio_device: str | None = None
         self._record_start: datetime.datetime | None = None
         self._last_frame: np.ndarray | None = None
+        self._preview_enabled = True
 
         # Timers
         self._duration_timer = QTimer(self)
@@ -221,7 +222,7 @@ class MainWindow(QMainWindow):
 
         row.addStretch()
 
-        hints = QLabel('ENTER  start/stop    F2  new project    TAB  next field    ←→  change option    ESC  quit')
+        hints = QLabel('ENTER  start/stop    F2  new project    F6  toggle preview    TAB  next field    ←→  change option    ESC  quit')
         hints.setFont(QFont('monospace', 10))
         hints.setStyleSheet(f'color: {C["dim"]};')
         row.addWidget(hints)
@@ -331,6 +332,9 @@ class MainWindow(QMainWindow):
 
         elif key == Qt.Key.Key_F2:
             self._handle_f2()
+
+        elif key == Qt.Key.Key_F6:
+            self._toggle_preview()
 
         elif key == Qt.Key.Key_Escape:
             self._handle_escape()
@@ -447,9 +451,14 @@ class MainWindow(QMainWindow):
             self._capture.wait(3000)
             self._capture = None
 
+    def _toggle_preview(self):
+        self._preview_enabled = not self._preview_enabled
+        self._video.set_preview_disabled(not self._preview_enabled)
+
     def _on_frame(self, frame: np.ndarray):
         self._last_frame = frame
-        self._video.set_frame(frame)
+        if self._preview_enabled:
+            self._video.set_frame(frame)
 
     def _on_device_lost(self):
         self._enter_state(AppState.NO_DEVICE)

@@ -1,5 +1,7 @@
 # Recording Machine
 
+![Screenshot](screenshot.png)
+
 A fullscreen video capture application for archiving analogue media — VHS, 16mm film, 8mm film — via a USB video grabber. Designed to run on a Raspberry Pi with an always-on display.
 
 ## Hardware
@@ -28,6 +30,7 @@ The app opens fullscreen showing a live preview of the capture device.
 |-----|--------|
 | `Enter` | Start / stop recording |
 | `F2` | New project — clears project and reel fields |
+| `F6` | Toggle camera preview on/off |
 | `Tab` | Move to next field / option |
 | `Shift+Tab` | Move to previous field / option |
 | `Space` | Select the focused format/codec/audio option |

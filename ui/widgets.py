@@ -36,6 +36,7 @@ class VideoFrame(QLabel):
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self._last_pix: QPixmap | None = None
         self._has_signal = False
+        self._preview_disabled = False
 
     def set_frame(self, frame: np.ndarray):
         """Display a BGR numpy array from OpenCV."""
@@ -66,10 +67,20 @@ class VideoFrame(QLabel):
         super().resizeEvent(event)
         self._refresh_scaled()
 
+    def set_preview_disabled(self, disabled: bool):
+        self._preview_disabled = disabled
+        if disabled:
+            QLabel.setPixmap(self, QPixmap())   # clear to black
+        else:
+            self._refresh_scaled()              # restore last frame
+        self.update()
+
     def paintEvent(self, event):
         super().paintEvent(event)
         if not self._has_signal:
             self._paint_no_signal()
+        elif self._preview_disabled:
+            self._paint_preview_disabled()
 
     def _refresh_scaled(self):
         if self._last_pix is None:
@@ -85,11 +96,20 @@ class VideoFrame(QLabel):
     def _paint_no_signal(self):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        # Dark grey text
         painter.setPen(QColor(C['dim']))
         font = QFont('monospace', 14)
         painter.setFont(font)
         painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, 'NO SIGNAL')
+        painter.end()
+
+    def _paint_preview_disabled(self):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setPen(QColor(C['dim']))
+        font = QFont('monospace', 14)
+        painter.setFont(font)
+        painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter,
+                         'Preview disabled. Press F6 to enable.')
         painter.end()
 
 
